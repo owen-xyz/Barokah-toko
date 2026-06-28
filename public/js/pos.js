@@ -97,8 +97,7 @@ function renderProducts(products) {
                  loading="lazy"
                  onerror="this.src='https://placehold.co/80x64/e8f4f8/2563eb?text=IMG'">
             <p class="product-card-name">${escapeHtml(p.nama_produk)}</p>
-            <span class="product-card-price">Ecer : ${Math.round(p.harga_ecer).toLocaleString("id-ID")}</span>
-            <span class="product-card-price-over">over : ${Math.round(p.harga_dropship).toLocaleString("id-ID")}</span>
+            <span class="product-card-price">${Math.round(p.harga_ecer).toLocaleString("id-ID")}</span>
             <span class="product-card-stock">Stok: ${p.stok}</span>
         </div>
     `,
@@ -235,6 +234,9 @@ function renderCart() {
                 ${item.qty >= item.product.stok ? "disabled" : ""}>+</button>
         </div>
     </div>
+
+
+    
 
             ${
                 isManual

@@ -40,6 +40,10 @@
                class="nav-btn {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                 <i class="bi bi-bar-chart-line me-1"></i> Laporan
             </a>
+             <a href="{{ route('admin.products.index') }}"
+               class="nav-btn {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                <i class="bi bi-box-seam me-1"></i> Produk
+            </a>
         </div>
     </div>
 </nav>
