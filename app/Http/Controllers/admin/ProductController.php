@@ -136,6 +136,7 @@ class ProductController extends Controller
             'harga_ecer'     => (float) $product->harga_ecer,
             'harga_dropship' => (float) $product->harga_dropship,
             'stok'           => $product->stok,
+            'barcode'        => $product->barcode,
             'gambar'         => $product->gambar
         ];
     }

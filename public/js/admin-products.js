@@ -89,6 +89,7 @@ function fillForm(data) {
     document.getElementById('productId').value      = data.id;
     document.getElementById('kode_produk').value    = data.kode_produk;
     document.getElementById('nama_produk').value    = data.nama_produk;
+    document.getElementById('barcode').value        = data.barcode;
     document.getElementById('kategori').value       = data.kategori;
     document.getElementById('stok').value           = data.stok;
     document.getElementById('harga_modal').value    = data.harga_modal;
@@ -151,6 +152,7 @@ function buildFormData() {
     const fd = new FormData();
     fd.append('kode_produk',    document.getElementById('kode_produk').value.trim());
     fd.append('nama_produk',    document.getElementById('nama_produk').value.trim());
+    fd.append('barcode',        document.getElementById('barcode').value.trim());
     fd.append('kategori',       document.getElementById('kategori').value.trim());
     fd.append('stok',           document.getElementById('stok').value);
     fd.append('harga_modal',    document.getElementById('harga_modal').value);
