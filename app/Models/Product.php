@@ -54,8 +54,8 @@ class Product extends Model
      */
     public function getGambarUrlAttribute(): string
     {
-        if ($this->gambar && \Storage::disk('public')->exists('products/' . $this->gambar)) {
-            return asset('storage/products/' . $this->gambar);
+        if ($this->gambar && \Storage::disk('public')->exists('products/'. $this->gambar)) {
+            return asset('storage/products/'. $this->gambar);
         }
 
         return 'https://placehold.co/150x120/e8f4f8/2563eb?text=' . urlencode(substr($this->nama_produk, 0, 10));
