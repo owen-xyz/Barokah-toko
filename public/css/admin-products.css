@@ -209,8 +209,9 @@
 }
 
 .admin-card-img {
+    border-radius: 5px;
     max-height: 110px;
-    max-width: 90%;
+    max-width: 95%;
     object-fit: contain;
     transition: transform .2s;
 }

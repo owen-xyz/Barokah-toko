@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Product;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductService
 {
@@ -53,13 +54,14 @@ class ProductService
      */
     private function uploadImage(UploadedFile $file, string $kode): string
     {
+        $url='storage/products/';
         $filename = $kode . '_' . time() . '.' . $file->extension();
 
         // Simpan fisik ke public/storage/products/
         $file->storeAs('products', $filename, 'public');
 
         // Yang disimpan di DB hanya nama file saja
-        return $filename;
+        return $url.$filename;
     }
 
     /**
@@ -67,11 +69,18 @@ class ProductService
      */
     private function deleteImage(?string $gambar): void
     {
+        // dd($gambar);
         if (!$gambar) return;
+        
 
-        // $gambar berisi nama file saja, misal: MG-001_1234567890.jpg
-        if (Storage::disk('public')->exists('products/' . $gambar)) {
-            Storage::disk('public')->delete('products/' . $gambar);
+        
+
+        $file = Str::after($gambar, 'storage/');
+        
+        if (Storage::disk('public')->exists($file)) {
+            Storage::disk('public')->delete($file);
+        }else{
+            dd('gagal menghapus file'.':'.$file);
         }
     }
 }

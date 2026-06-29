@@ -171,6 +171,7 @@ body {
 
 /* Product Card */
 .product-card {
+    margin-top: 1px;
     background: var(--white);
     border: 1.5px solid var(--gray-200);
     border-radius: var(--radius-md);
@@ -200,7 +201,7 @@ body {
 .product-card:hover {
     border-color: var(--blue);
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 .product-card:hover::after { opacity: .03; }
@@ -242,7 +243,7 @@ body {
     padding: 2px 8px;
     border-radius: 99px;
 }
-.product-card-price-over {
+.product-card-price-ecer {
     background: var(--red);
     color: #fff;
     font-size: .7rem;
@@ -325,8 +326,8 @@ body {
     border-radius: 6px;
 }
 
-.skeleton-img { width: 80px; height: 64px; }
-.skeleton-title { width: 90%; height: 28px; }
+.skeleton-img { width: 80px; height: 64px; border-radius: 5px;}
+.skeleton-title { width: 95%; height: 50px; }
 .skeleton-price { width: 60%; height: 18px; }
 
 @keyframes shimmer {

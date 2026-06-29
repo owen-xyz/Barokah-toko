@@ -166,6 +166,13 @@
                     <span class="form-error" id="err_nama_produk"></span>
                 </div>
 
+                 <div class="form-group">
+                    <label class="form-label-custom">Barcode <span class=""></span></label>
+                    <input type="text" name="barcode" id="barcode" class="form-input"
+                           placeholder="gunakan scaner" maxlength="50">
+                    <span class="form-error" id="err_barcode"></span>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label-custom">Kategori <span class="required">*</span></label>
                     <input type="text" name="kategori" id="kategori" class="form-input"
