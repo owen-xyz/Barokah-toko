@@ -25,8 +25,8 @@ class ProductController extends Controller
         $keyword  = $request->input('search', '');
         $kategori = $request->input('kategori', '');
 
-        $products = Product::when($keyword,  fn($q) => $q->search($keyword))
-            ->when($kategori, fn($q) => $q->where('kategori', $kategori))
+        $products = Product::when($keyword,  fn ($q) => $q->search($keyword))
+            ->when($kategori, fn ($q) => $q->where('kategori', $kategori))
             ->orderBy('nama_produk')
             ->paginate(12)
             ->withQueryString();
@@ -55,6 +55,7 @@ class ProductController extends Controller
                 'message' => "Produk {$product->nama_produk} berhasil ditambahkan.",
                 'data'    => $this->formatProduct($product),
             ]);
+
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -91,6 +92,7 @@ class ProductController extends Controller
                 'message' => "Produk {$updated->nama_produk} berhasil diperbarui.",
                 'data'    => $this->formatProduct($updated),
             ]);
+
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -105,7 +107,6 @@ class ProductController extends Controller
     public function destroy(Product $product): JsonResponse
     {
         try {
-            
             $nama = $product->nama_produk;
             $this->productService->destroy($product);
 
@@ -113,6 +114,7 @@ class ProductController extends Controller
                 'success' => true,
                 'message' => "Produk {$nama} berhasil dihapus.",
             ]);
+
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -126,17 +128,16 @@ class ProductController extends Controller
      */
     private function formatProduct(Product $product): array
     {
-  
         return [
             'id'             => $product->id,
             'kode_produk'    => $product->kode_produk,
+            'barcode'        => $product->barcode,
             'nama_produk'    => $product->nama_produk,
             'kategori'       => $product->kategori,
             'harga_modal'    => (float) $product->harga_modal,
             'harga_ecer'     => (float) $product->harga_ecer,
             'harga_dropship' => (float) $product->harga_dropship,
             'stok'           => $product->stok,
-            'barcode'        => $product->barcode,
             'gambar'         => $product->gambar
         ];
     }

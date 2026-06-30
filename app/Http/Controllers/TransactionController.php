@@ -33,6 +33,7 @@ class TransactionController extends Controller
                 'success' => true,
                 'message' => "Transaksi berhasil disimpan! Kode: {$transaction->kode_transaksi}",
                 'data'    => [
+                    'id'               => $transaction->id,
                     'kode_transaksi'   => $transaction->kode_transaksi,
                     'total_harga'      => $transaction->total_harga,
                     'total_keuntungan' => $transaction->total_keuntungan,
@@ -49,5 +50,15 @@ class TransactionController extends Controller
                 'message' => 'Terjadi kesalahan saat menyimpan transaksi: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Tampilkan halaman struk untuk dicetak.
+     */
+    public function printReceipt(int $id): View
+    {
+        $transaction = \App\Models\Transaction::with('details.product')->findOrFail($id);
+
+        return view('pos.receipt', compact('transaction'));
     }
 }

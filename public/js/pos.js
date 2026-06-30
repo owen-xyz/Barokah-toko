@@ -1,7 +1,6 @@
 /**
  * POS System — Halaman Transaksi
  * Mengelola: produk grid, search realtime, keranjang, perhitungan, simpan transaksi
- * test branch
  */
 
 "use strict";
@@ -98,8 +97,7 @@ function renderProducts(products) {
                  loading="lazy"
                  onerror="this.src='https://placehold.co/80x64/e8f4f8/2563eb?text=IMG'">
             <p class="product-card-name">${escapeHtml(p.nama_produk)}</p>
-            <span class="product-card-price-ecer">${Math.round(p.harga_ecer).toLocaleString("id-ID")}</span>
-            <span class="product-card-price">${Math.round(p.harga_dropship).toLocaleString("id-ID")}</span>
+            <span class="product-card-price">${Math.round(p.harga_ecer).toLocaleString("id-ID")}</span>
             <span class="product-card-stock">Stok: ${p.stok}</span>
         </div>
     `,
@@ -175,8 +173,8 @@ function addToCart(el) {
         Cart.items.push({
             product,
             qty: 1,
-            jenisHarga: "ecer",
-            hargaJual: product.ecer,
+            jenisHarga: "dropship",
+            hargaJual: product.dropship,
         });
     }
 
@@ -213,32 +211,29 @@ function renderCart() {
             const isManual = item.jenisHarga === "manual";
 
             return `
-<div class="cart-item" id="cart-item-${idx}">
-    <div class="cart-item-top">
-        <span class="cart-item-name">${escapeHtml(item.product.nama)}</span>
-        <button class="btn-remove-item" onclick="removeItem(${idx})" title="Hapus">
-            <i class="bi bi-x-lg"></i>
-        </button>
-    </div>
+        <div class="cart-item" id="cart-item-${idx}">
+            <div class="cart-item-top">
+                <span class="cart-item-name">${escapeHtml(item.product.nama)}</span>
+                <button class="btn-remove-item" onclick="removeItem(${idx})" title="Hapus">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
 
-    <div class="cart-item-controls">
-        <select class="price-type-select" onchange="changeHarga(${idx}, this.value)">
-            <option value="ecer"     ${item.jenisHarga === "ecer" ? "selected" : ""}>Harga Ecer</option>
-            <option value="dropship" ${item.jenisHarga === "dropship" ? "selected" : ""}>Harga Dropship</option>
-            <option value="manual"   ${item.jenisHarga === "manual" ? "selected" : ""}>Manual</option>
-        </select>
+            <div class="cart-item-controls">
+                <select class="price-type-select" onchange="changeHarga(${idx}, this.value)">
+                <option value="dropship" ${item.jenisHarga === "dropship" ? "selected" : ""}>Harga Dropship</option>
+                    <option value="ecer"     ${item.jenisHarga === "ecer" ? "selected" : ""}>Harga Ecer</option>
+                    <option value="manual"   ${item.jenisHarga === "manual" ? "selected" : ""}>Manual</option>
+                </select>
 
-        <div class="qty-controls">
-            <button class="btn-qty" onclick="changeQty(${idx}, -1)"
-                ${item.qty <= 1 ? "disabled" : ""}>−</button>
-            <span class="qty-display">${item.qty}</span>
-            <button class="btn-qty" onclick="changeQty(${idx}, 1)"
-                ${item.qty >= item.product.stok ? "disabled" : ""}>+</button>
-        </div>
-    </div>
-
-
-    
+                <div class="qty-controls">
+                    <button class="btn-qty" onclick="changeQty(${idx}, -1)"
+                        ${item.qty <= 1 ? "disabled" : ""}>−</button>
+                    <span class="qty-display">${item.qty}</span>
+                    <button class="btn-qty" onclick="changeQty(${idx}, 1)"
+                        ${item.qty >= item.product.stok ? "disabled" : ""}>+</button>
+                </div>
+            </div>
 
             ${
                 isManual
@@ -331,9 +326,9 @@ function changeHarga(idx, jenis) {
 
     item.jenisHarga = jenis;
 
-    if (jenis === "ecer") item.hargaJual = item.product.ecer;
     if (jenis === "dropship") item.hargaJual = item.product.dropship;
-    if (jenis === "manual") item.hargaJual = item.product.ecer; // default ke ecer dulu
+    if (jenis === "ecer") item.hargaJual = item.product.ecer;
+    if (jenis === "manual") item.hargaJual = item.product.ecer; 
 
     renderCart();
 }
@@ -424,6 +419,9 @@ async function saveTransaction() {
         const json = await res.json();
 
         if (json.success) {
+            // Buka struk di tab baru
+            window.open(`/pos/receipt/${json.data.id}`, "_blank");
+
             await Swal.fire({
                 icon: "success",
                 title: "Transaksi Berhasil!",
@@ -466,18 +464,147 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+// ─── Barcode Scanner Detection ──────────────────────────────────────────────────
+/**
+ * Scanner barcode bekerja sebagai "keyboard wedge": mengetik karakter sangat
+ * cepat (biasanya < 30ms per karakter, manusia mengetik > 80ms) lalu mengirim
+ * Enter di akhir. Kita deteksi pola ini di search input agar:
+ * - Scan barcode → langsung masuk keranjang otomatis (tanpa klik/konfirmasi)
+ * - Ketik manual  → tetap berfungsi sebagai search realtime seperti biasa
+ */
+const BarcodeScanner = {
+    buffer: "",
+    lastCharTime: 0,
+    charTimeGaps: [],
+    SCAN_MAX_GAP: 50, // ms maksimal antar karakter agar dianggap hasil scan
+    MIN_LENGTH: 4, // panjang minimal kode dianggap barcode valid
+};
+
+function isLikelyBarcodeInput() {
+    // Minimal 4 karakter dan rata-rata jeda antar karakter sangat cepat
+    if (BarcodeScanner.buffer.length < BarcodeScanner.MIN_LENGTH) return false;
+    if (BarcodeScanner.charTimeGaps.length === 0) return false;
+
+    const avgGap =
+        BarcodeScanner.charTimeGaps.reduce((a, b) => a + b, 0) /
+        BarcodeScanner.charTimeGaps.length;
+    return avgGap <= BarcodeScanner.SCAN_MAX_GAP;
+}
+
+function resetBarcodeBuffer() {
+    BarcodeScanner.buffer = "";
+    BarcodeScanner.charTimeGaps = [];
+    BarcodeScanner.lastCharTime = 0;
+}
+
+/** Proses hasil scan: cari produk via barcode lalu masukkan ke keranjang otomatis */
+async function processScannedBarcode(code) {
+    const searchInput = document.getElementById("searchInput");
+    const indicator = document.getElementById("scannerIndicator");
+
+    indicator?.classList.add("scanning");
+
+    try {
+        const res = await fetch(
+            `/api/products/scan?barcode=${encodeURIComponent(code)}`,
+        );
+        const json = await res.json();
+
+        if (!json.success) {
+            // Tampilkan notifikasi kecil tanpa mengganggu alur scan berikutnya
+            showScanToast(json.message || "Barcode tidak ditemukan", "error");
+            return;
+        }
+
+        const p = json.data;
+
+        // Bangun elemen sintetis agar bisa pakai fungsi addToCart yang sudah ada
+        const fakeEl = document.createElement("div");
+        fakeEl.dataset.id = p.id;
+        fakeEl.dataset.nama = p.nama_produk;
+        fakeEl.dataset.modal = p.harga_modal;
+        fakeEl.dataset.ecer = p.harga_ecer;
+        fakeEl.dataset.dropship = p.harga_dropship;
+        fakeEl.dataset.stok = p.stok;
+
+        addToCart(fakeEl);
+        showScanToast(`${p.nama_produk} ditambahkan`, "success");
+
+        // Refresh grid produk agar stok ter-update + highlight kalau produk itu tampil
+        loadProducts(currentPage, searchKeyword);
+    } catch (err) {
+        console.error(err);
+        showScanToast("Gagal memproses barcode", "error");
+    } finally {
+        indicator?.classList.remove("scanning");
+        // Bersihkan search input supaya siap untuk scan berikutnya
+        searchInput.value = "";
+        searchKeyword = "";
+    }
+}
+
+/** Toast kecil pojok atas untuk feedback hasil scan (tidak mengganggu alur kerja) */
+function showScanToast(message, type = "success") {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1800,
+        timerProgressBar: true,
+    });
+
+    Toast.fire({
+        icon: type === "success" ? "success" : "error",
+        title: message,
+    });
+}
+
 // ─── Init ───────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
     // Load produk awal
     loadProducts();
 
-    // Search dengan debounce 300ms
-    document.getElementById("searchInput").addEventListener("input", (e) => {
+    const searchInput = document.getElementById("searchInput");
+
+    // ── Search realtime DENGAN deteksi barcode scanner ──
+    searchInput.addEventListener("keydown", (e) => {
+        const now = performance.now();
+
+        if (e.key === "Enter") {
+            e.preventDefault();
+
+            const code = searchInput.value.trim();
+
+            // Jika pola ketikan cepat (scan) ATAU panjang & angka semua (umumnya barcode)
+            const looksLikeBarcode =
+                isLikelyBarcodeInput() || /^\d{6,}$/.test(code);
+
+            if (code && looksLikeBarcode) {
+                processScannedBarcode(code);
+            }
+
+            resetBarcodeBuffer();
+            return;
+        }
+
+        // Hitung jeda antar karakter untuk deteksi kecepatan ketik
+        if (BarcodeScanner.lastCharTime > 0) {
+            BarcodeScanner.charTimeGaps.push(now - BarcodeScanner.lastCharTime);
+        }
+        BarcodeScanner.lastCharTime = now;
+        BarcodeScanner.buffer += e.key.length === 1 ? e.key : "";
+    });
+
+    // Search dengan debounce 300ms (tetap berjalan normal untuk ketik manual)
+    searchInput.addEventListener("input", (e) => {
         clearTimeout(searchTimer);
         searchKeyword = e.target.value.trim();
         currentPage = 1;
         searchTimer = setTimeout(() => loadProducts(1, searchKeyword), 300);
     });
+
+    // Reset buffer kalau user diam > 200ms tanpa Enter (anggap ketik manual selesai per kata)
+    searchInput.addEventListener("blur", resetBarcodeBuffer);
 
     // Clear cart button
     document.getElementById("clearCartBtn").addEventListener("click", () => {
@@ -499,4 +626,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document
         .getElementById("saveTransactionBtn")
         .addEventListener("click", saveTransaction);
+
+    // Auto-focus search input agar scanner langsung bisa dipakai tanpa klik
+    searchInput.focus();
+
+    // Pastikan search input tetap fokus setelah modal/alert ditutup (untuk scan berikutnya)
+    document.addEventListener("click", (e) => {
+        // Jangan re-focus kalau user sedang klik di dalam keranjang (input manual price dll)
+        if (
+            !e.target.closest(".pos-right") &&
+            !e.target.closest(".swal2-container")
+        ) {
+            setTimeout(() => searchInput.focus(), 50);
+        }
+    });
 });

@@ -24,7 +24,7 @@
             <div class="filter-inner">
                 <div class="filter-search-box">
                     <i class="bi bi-search filter-search-icon"></i>
-                    <input type="text" name="search" class="filter-search-input" 
+                    <input type="text" name="search" class="filter-search-input"
                            placeholder="Cari nama, kode produk..." value="{{ $keyword }}" autocomplete="off">
                 </div>
                 <select name="kategori" class="filter-select" onchange="document.getElementById('filterForm').submit()">
@@ -64,7 +64,7 @@
                 @endif
 
                 <div class="admin-card-img-wrap">
-                    <img src="{{ asset($product->gambar) }}" alt="{{ $product->nama_produk }}"
+                    <img src="{{ asset( $product->gambar) }}" alt="{{ $product->nama_produk }}"
                          class="admin-card-img"
                          onerror="this.src='https://placehold.co/150x120/e8f4f8/2563eb?text=IMG'">
                 </div>
@@ -159,18 +159,18 @@
                     <span class="form-error" id="err_kode_produk"></span>
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label-custom">Barcode</label>
+                    <input type="text" name="barcode" id="barcode" class="form-input"
+                           placeholder="Scan atau ketik barcode" maxlength="100">
+                    <span class="form-error" id="err_barcode"></span>
+                </div>
+
                 <div class="form-group form-group-wide">
                     <label class="form-label-custom">Nama Produk <span class="required">*</span></label>
                     <input type="text" name="nama_produk" id="nama_produk" class="form-input"
                            placeholder="Nama lengkap produk" maxlength="255">
                     <span class="form-error" id="err_nama_produk"></span>
-                </div>
-
-                 <div class="form-group">
-                    <label class="form-label-custom">Barcode <span class=""></span></label>
-                    <input type="text" name="barcode" id="barcode" class="form-input"
-                           placeholder="gunakan scaner" maxlength="50">
-                    <span class="form-error" id="err_barcode"></span>
                 </div>
 
                 <div class="form-group">
