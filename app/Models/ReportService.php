@@ -69,8 +69,8 @@ class ReportService
     public function getHistory(array $filters = []): \Illuminate\Pagination\LengthAwarePaginator
     {
         return Transaction::with('details.product')
-            ->when($filters['start'] ?? null, fn($q, $v) => $q->whereDate('created_at', '>=', $v))
-            ->when($filters['end']   ?? null, fn($q, $v) => $q->whereDate('created_at', '<=', $v))
+            ->when($filters['start'] ?? null, fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
+            ->when($filters['end']   ?? null, fn ($q, $v) => $q->whereDate('created_at', '<=', $v))
             ->orderByDesc('created_at')
             ->paginate(15);
     }

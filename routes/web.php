@@ -17,8 +17,10 @@ Route::prefix('pos')->name('pos.')->group(function () {
 
 // ─── Halaman Laporan ──────────────────────────────────────────────────────────
 Route::prefix('reports')->name('reports.')->group(function () {
-    Route::get('/', [ReportController::class, 'index'])->name('index');
-    Route::get('/data', [ReportController::class, 'getData'])->name('data');
+    Route::get('/',           [ReportController::class, 'index'])->name('index');
+    Route::get('/data',       [ReportController::class, 'getData'])->name('data');
+    Route::get('/history',    [ReportController::class, 'history'])->name('history');
+    Route::get('/detail/{id}', [ReportController::class, 'detail'])->name('detail');
 });
 
 // ─── Admin Produk ─────────────────────────────────────────────────────────────
