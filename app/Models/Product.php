@@ -11,6 +11,7 @@ class Product extends Model
 
     protected $fillable = [
         'kode_produk',
+        'barcode',
         'nama_produk',
         'kategori',
         'harga_modal',
@@ -43,8 +44,17 @@ class Product extends Model
         return $query->where(function ($q) use ($keyword) {
             $q->where('nama_produk', 'like', "%{$keyword}%")
                 ->orWhere('kode_produk', 'like', "%{$keyword}%")
-                ->orWhere('kategori', 'like', "%{$keyword}%");
+                ->orWhere('kategori', 'like', "%{$keyword}%")
+                ->orWhere('barcode', 'like', "%{$keyword}%");
         });
+    }
+
+    /**
+     * Cari produk berdasarkan barcode persis (exact match).
+     */
+    public function scopeFindByBarcode($query, string $barcode)
+    {
+        return $query->where('barcode', $barcode);
     }
 
     /**

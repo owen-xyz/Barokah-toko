@@ -12,12 +12,15 @@ Route::get('/', fn() => redirect()->route('pos.index'));
 // ─── Halaman Transaksi (POS) ──────────────────────────────────────────────────
 Route::prefix('pos')->name('pos.')->group(function () {
     Route::get('/', [TransactionController::class, 'index'])->name('index');
+    Route::get('/receipt/{id}', [TransactionController::class, 'printReceipt'])->name('receipt');
 });
 
 // ─── Halaman Laporan ──────────────────────────────────────────────────────────
 Route::prefix('reports')->name('reports.')->group(function () {
-    Route::get('/', [ReportController::class, 'index'])->name('index');
-    Route::get('/data', [ReportController::class, 'getData'])->name('data');
+    Route::get('/',           [ReportController::class, 'index'])->name('index');
+    Route::get('/data',       [ReportController::class, 'getData'])->name('data');
+    Route::get('/history',    [ReportController::class, 'history'])->name('history');
+    Route::get('/detail/{id}', [ReportController::class, 'detail'])->name('detail');
 });
 
 // ─── Admin Produk ─────────────────────────────────────────────────────────────
@@ -33,5 +36,6 @@ Route::prefix('admin/products')->name('admin.products.')->group(function () {
 Route::prefix('api')->name('api.')->group(function () {
     Route::get('/products',        [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
+    Route::get('/products/scan',   [ProductController::class, 'scanBarcode'])->name('products.scan');
     Route::post('/transactions',   [TransactionController::class, 'store'])->name('transactions.store');
 });

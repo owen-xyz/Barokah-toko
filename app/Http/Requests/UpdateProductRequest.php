@@ -18,6 +18,7 @@ class UpdateProductRequest extends FormRequest
 
         return [
             'kode_produk'    => ['required', 'string', 'max:50', "unique:products,kode_produk,{$productId}"],
+            'barcode'        => ['nullable', 'string', 'max:100', "unique:products,barcode,{$productId}"],
             'nama_produk'    => ['required', 'string', 'max:255'],
             'kategori'       => ['required', 'string', 'max:100'],
             'harga_modal'    => ['required', 'numeric', 'min:0'],
@@ -33,6 +34,7 @@ class UpdateProductRequest extends FormRequest
         return [
             'kode_produk.required'    => 'Kode produk wajib diisi.',
             'kode_produk.unique'      => 'Kode produk sudah digunakan produk lain.',
+            'barcode.unique'          => 'Barcode sudah digunakan produk lain.',
             'nama_produk.required'    => 'Nama produk wajib diisi.',
             'kategori.required'       => 'Kategori wajib diisi.',
             'harga_modal.required'    => 'Harga modal wajib diisi.',

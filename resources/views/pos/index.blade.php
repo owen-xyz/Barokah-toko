@@ -18,13 +18,20 @@
                     type="text"
                     id="searchInput"
                     class="form-control search-input"
-                    placeholder="Cari produk, kode, atau kategori..."
+                    placeholder="Cari produk, kode, atau scan barcode..."
                     autocomplete="off"
                 >
                 <div id="searchSpinner" class="search-spinner d-none">
                     <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                 </div>
+                <div class="scanner-indicator" id="scannerIndicator" title="Scanner siap — arahkan ke search box">
+                    <i class="bi bi-upc-scan"></i>
+                </div>
             </div>
+            <p class="scanner-hint">
+                <i class="bi bi-info-circle me-1"></i>
+                Scan barcode langsung di kolom pencarian — produk otomatis masuk keranjang
+            </p>
         </div>
 
         {{-- Kategori badge aktif --}}

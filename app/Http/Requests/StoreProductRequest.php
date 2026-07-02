@@ -15,6 +15,7 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'kode_produk'  => ['required', 'string', 'max:50', 'unique:products,kode_produk'],
+            'barcode'      => ['nullable', 'string', 'max:100', 'unique:products,barcode'],
             'nama_produk'  => ['required', 'string', 'max:255'],
             'kategori'     => ['required', 'string', 'max:100'],
             'harga_modal'  => ['required', 'numeric', 'min:0'],
@@ -30,11 +31,12 @@ class StoreProductRequest extends FormRequest
         return [
             'kode_produk.required'   => 'Kode produk wajib diisi.',
             'kode_produk.unique'     => 'Kode produk sudah digunakan.',
+            'barcode.unique'         => 'Barcode sudah digunakan produk lain.',
             'nama_produk.required'   => 'Nama produk wajib diisi.',
             'kategori.required'      => 'Kategori wajib diisi.',
             'harga_modal.required'   => 'Harga modal wajib diisi.',
             'harga_ecer.required'    => 'Harga ecer wajib diisi.',
-            'harga_dropship.required'=> 'Harga dropship wajib diisi.',
+            'harga_dropship.required' => 'Harga dropship wajib diisi.',
             'stok.required'          => 'Stok wajib diisi.',
             'gambar.image'           => 'File harus berupa gambar.',
             'gambar.max'             => 'Ukuran gambar maksimal 2MB.',

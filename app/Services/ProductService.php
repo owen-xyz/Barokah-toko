@@ -54,14 +54,14 @@ class ProductService
      */
     private function uploadImage(UploadedFile $file, string $kode): string
     {
-        $url='storage/products/';
+        $url = 'storage/products/';
         $filename = $kode . '_' . time() . '.' . $file->extension();
 
         // Simpan fisik ke public/storage/products/
         $file->storeAs('products', $filename, 'public');
 
         // Yang disimpan di DB hanya nama file saja
-        return $url.$filename;
+        return $url . $filename;
     }
 
     /**
@@ -71,16 +71,16 @@ class ProductService
     {
         // dd($gambar);
         if (!$gambar) return;
-        
 
-        
+
+
 
         $file = Str::after($gambar, 'storage/');
-        
+
         if (Storage::disk('public')->exists($file)) {
             Storage::disk('public')->delete($file);
-        }else{
-            dd('gagal menghapus file'.':'.$file);
+        } else {
+            dd('gagal menghapus file' . ':' . $file);
         }
     }
 }
